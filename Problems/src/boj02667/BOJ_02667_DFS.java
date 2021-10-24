@@ -1,3 +1,4 @@
+package boj02667;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -6,7 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
-public class BOJ_02667_BFS {
+public class BOJ_02667_DFS {
 	static int[] dX = { 0, 0, 1, -1 }; // 이동방향 X
 	static int[] dY = { 1, -1, 0, 0 }; // 이동방향 Y
 	static int N, cnt;
@@ -23,26 +24,43 @@ public class BOJ_02667_BFS {
 		}
 	}
 
-	static void bfs(int x, int y) {
-		Deque<Cell> q = new ArrayDeque<Cell>();
-		q.add(new Cell(x, y));
+	static void dfs(int x, int y) {
 		visited[x][y] = true;
 		apt[cnt]++;
+		for (int i = 0; i < 4; i++) {
+			int nX = x + dX[i];
+			int nY = y + dY[i];
+			if (!OOB(nX, nY)) {
+				if (map[nX][nY] == 1 && !visited[nX][nY]) {
+					dfs(nX, nY);
+				}
+			}
+		}
+	}
 
-		while (!q.isEmpty()) {
-			Cell now = q.poll();
-			int curX = now.x;
-			int curY = now.y;
+	static void dfsStack(int x, int y) {
+		Deque<Cell> st = new ArrayDeque<Cell>();
+		st.push(new Cell(x, y));
+		visited[x][y] = true;
+		while (!st.isEmpty()) {
+			int curX = st.peek().x;
+			int curY = st.peek().y;
+			visited[curX][curY] = true;
+			boolean isFinished = true;
 			for (int i = 0; i < 4; i++) {
 				int nextX = curX + dX[i];
 				int nextY = curY + dY[i];
 				if (!OOB(nextX, nextY)) {
 					if (map[nextX][nextY] == 1 && !visited[nextX][nextY]) {
-						q.add(new Cell(nextX, nextY));
-						visited[nextX][nextY] = true;
-						apt[cnt]++;
+						st.push(new Cell(nextX, nextY));
+						isFinished = false;
+						break;
 					}
 				}
+			}
+			if (isFinished) {
+				apt[cnt]++;
+				st.pop();
 			}
 		}
 	}
@@ -74,7 +92,8 @@ public class BOJ_02667_BFS {
 			for (int j = 0; j < N; j++) {
 				if (map[i][j] == 1 && !visited[i][j]) {
 					cnt++;
-					bfs(i, j);
+					//dfs(i, j);
+					dfsStack(i, j);
 				}
 			}
 		}
@@ -88,5 +107,4 @@ public class BOJ_02667_BFS {
 		bw.flush();
 		bw.close();
 	}
-
 }
